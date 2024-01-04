@@ -6,10 +6,9 @@ import com.example.AI_DATA.bulletin.model.Bulletin;
 import com.example.AI_DATA.restapi.Message;
 import com.example.AI_DATA.restapi.RestResponse;
 import lombok.val;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -50,6 +49,47 @@ public class ApiController {
         return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
     }
 
-    //@GetMapping("bulletein/save/)
+    @PostMapping("bulletin/save")
+    public ResponseEntity<String> save(@RequestBody Bulletin bulletin) {
+        this.bulletinService.save(bulletin);
+        return new ResponseEntity<>("Bulletin saved with username: " + bulletin.getTitle(), HttpStatus.CREATED);
+    }
 
+
+    @PutMapping("bulletin/modify/{id}")
+    public ResponseEntity<String> modify(@PathVariable Long id, @RequestBody Bulletin newBulletin) {
+        Optional<Bulletin> bulletin = bulletinService.findByid(id);
+
+        if (!bulletin.isPresent()) { return new ResponseEntity<>("Bulletin Not Found", HttpStatus.NOT_FOUND);}
+
+        bulletin = changeBulletin(bulletin, newBulletin);
+        this.bulletinService.save(bulletin.get());
+
+        return new ResponseEntity<>("bulletin modified with id : " + bulletin.get().getId() + bulletin.get().getLabel(), HttpStatus.OK);
+
+    }
+
+    @DeleteMapping("bulletin/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        Optional<Bulletin> bulletin = this.bulletinService.findByid(id);
+
+        if (!bulletin.isPresent()) {
+            return new ResponseEntity<>("No Bulletin Found", HttpStatus.NOT_FOUND);
+        }
+        this.bulletinService.deleteById(id);
+
+        return new ResponseEntity<>("Delete Successful", HttpStatus.OK);
+
+
+    }
+
+    public static Optional<Bulletin> changeBulletin(Optional<Bulletin> baseBulletin, Bulletin newBulletin) {
+        Bulletin bulletin = baseBulletin.get();
+
+        bulletin.setLabel(newBulletin.getLabel());
+        bulletin.setTitle(newBulletin.getTitle());
+        bulletin.setImageData(newBulletin.getImageData());
+
+        return Optional.of(bulletin);
+    }
 }

@@ -16,6 +16,10 @@ public class BulletinRepository {
         store.put(bulletin.getId(), bulletin);
     }
 
+    public void deleteById(Long id) {
+        store.remove(id);
+    }
+
     public Optional<Bulletin> findById(Long bulletinId) {
         return Optional.ofNullable(store.get(bulletinId));
     }
