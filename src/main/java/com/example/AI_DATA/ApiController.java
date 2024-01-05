@@ -58,7 +58,7 @@ public class ApiController {
 
     @PutMapping("bulletin/modify/{id}")
     public ResponseEntity<String> modify(@PathVariable Long id, @RequestBody Bulletin newBulletin) {
-        Optional<Bulletin> bulletin = bulletinService.findByid(id);
+        Bulletin bulletin = bulletinService.findByid(id);
 
         if (!bulletin.isPresent()) { return new ResponseEntity<>("Bulletin Not Found", HttpStatus.NOT_FOUND);}
 

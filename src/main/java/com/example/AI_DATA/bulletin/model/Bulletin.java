@@ -3,10 +3,18 @@ package com.example.AI_DATA.bulletin.model;
 
 import lombok.Data;
 import jakarta.persistence.Lob;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Data
+@Entity
 public class Bulletin {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String title;
     private String label;
 
