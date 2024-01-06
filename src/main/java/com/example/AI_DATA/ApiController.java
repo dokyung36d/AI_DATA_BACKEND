@@ -26,9 +26,9 @@ public class ApiController {
     @GetMapping("/bulletin/view/{id}")
     public ResponseEntity<RestResponse> find(@PathVariable Long id) {
         RestResponse<Object> restResponse = new RestResponse<>();
-        Optional<Bulletin> bulletin = bulletinService.findByid(id);
+        Optional<Bulletin> bulletin = bulletinService.findById(id);
 
-        if (bulletin.isPresent()) {
+        if (bulletin != null) {
             restResponse = RestResponse.builder()
                     .code(HttpStatus.OK.value())
                     .httpStatus(HttpStatus.OK)
@@ -42,7 +42,6 @@ public class ApiController {
                     .code(HttpStatus.NOT_FOUND.value())
                     .httpStatus(HttpStatus.NOT_FOUND)
                     .message(Message.BULLETIN_NOT_FOUND.label())
-                    .data(bulletin)
                     .build();
         }
 
@@ -50,35 +49,71 @@ public class ApiController {
     }
 
     @PostMapping("bulletin/save")
-    public ResponseEntity<String> save(@RequestBody Bulletin bulletin) {
+    public ResponseEntity<RestResponse> save(@RequestBody Bulletin bulletin) {
         this.bulletinService.save(bulletin);
-        return new ResponseEntity<>("Bulletin saved with username: " + bulletin.getTitle(), HttpStatus.CREATED);
+        RestResponse<Object> restResponse = new RestResponse<>();
+
+        restResponse = RestResponse.builder()
+                .code(HttpStatus.OK.value())
+                .httpStatus(HttpStatus.OK)
+                .message(Message.BULLETIN_SAVE_SUCCESS.label())
+                .build();
+        return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
     }
 
 
     @PutMapping("bulletin/modify/{id}")
-    public ResponseEntity<String> modify(@PathVariable Long id, @RequestBody Bulletin newBulletin) {
-        Bulletin bulletin = bulletinService.findByid(id);
+    public ResponseEntity<RestResponse> modify(@PathVariable Long id, @RequestBody Bulletin newBulletin) {
+        Optional<Bulletin> bulletin = bulletinService.findById(id);
 
-        if (!bulletin.isPresent()) { return new ResponseEntity<>("Bulletin Not Found", HttpStatus.NOT_FOUND);}
+        RestResponse<Object> restResponse = new RestResponse<>();
+
+        if (bulletin.isEmpty()) {
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.NOT_MODIFIED.value())
+                    .httpStatus(HttpStatus.NOT_MODIFIED)
+                    .message(Message.BULLETIN_MODIFY_FAILED.label())
+                    .build();
+            return new ResponseEntity<>(restResponse, HttpStatus.NOT_FOUND);
+        }
 
         bulletin = changeBulletin(bulletin, newBulletin);
-        this.bulletinService.save(bulletin.get());
+        bulletinService.save(bulletin.get());
 
-        return new ResponseEntity<>("bulletin modified with id : " + bulletin.get().getId() + bulletin.get().getLabel(), HttpStatus.OK);
+        restResponse = RestResponse.builder()
+                .code(HttpStatus.OK.value())
+                .httpStatus(HttpStatus.OK)
+                .message(Message.BULLETIN_MODIFY_SUCCESS.label())
+                .build();
+
+        return new ResponseEntity<>(restResponse, HttpStatus.OK);
 
     }
 
     @DeleteMapping("bulletin/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        Optional<Bulletin> bulletin = this.bulletinService.findByid(id);
+    public ResponseEntity<RestResponse> delete(@PathVariable Long id) {
+        Optional<Bulletin> bulletin = bulletinService.findById(id);
+
+        RestResponse<Object> restResponse = new RestResponse<>();
 
         if (!bulletin.isPresent()) {
-            return new ResponseEntity<>("No Bulletin Found", HttpStatus.NOT_FOUND);
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .message(Message.BULLETIN_DELETE_FAILED.label())
+                    .build();
+            return new ResponseEntity<>(restResponse, HttpStatus.NOT_FOUND);
         }
-        this.bulletinService.deleteById(id);
 
-        return new ResponseEntity<>("Delete Successful", HttpStatus.OK);
+        bulletinService.deleteById(id);
+
+        restResponse = RestResponse.builder()
+                .code(HttpStatus.OK.value())
+                .httpStatus(HttpStatus.OK)
+                .message(Message.BULLETIN_DELETE_SUCCESS.label())
+                .build();
+
+        return new ResponseEntity<>(restResponse, HttpStatus.OK);
 
 
     }

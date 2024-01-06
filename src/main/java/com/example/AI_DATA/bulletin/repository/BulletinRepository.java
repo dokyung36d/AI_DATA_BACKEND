@@ -25,14 +25,17 @@ public class BulletinRepository {
         entityManager.remove(findById(bulletinId));
     }
 
-    public Bulletin findById(Long bulletinId) {
-        return entityManager.find(Bulletin.class, bulletinId);
+    public Optional<Bulletin> findById(Long bulletinId) {
+        Bulletin bulletin =  entityManager.find(Bulletin.class, bulletinId);
+
+        return Optional.ofNullable(bulletin);
     }
 
-    public Bulletin findByTitle(String findTitle) {
-        return entityManager.createQuery("SELECT b From Bulletin b WHERE b.title = :findTitle", Bulletin.class)
+    public Optional<Bulletin> findByTitle(String findTitle) {
+        Bulletin bulletin =  entityManager.createQuery("SELECT b From Bulletin b WHERE b.title = :findTitle", Bulletin.class)
                 .setParameter("findTitle", findTitle)
                 .getSingleResult();
+        return Optional.ofNullable(bulletin);
     }
 
     public List<Bulletin> findAll() {
