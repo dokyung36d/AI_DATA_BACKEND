@@ -22,9 +22,10 @@ bin/
 *.iws
 *.iml
 *.ipr
+*.yml
 out/
-!**/src/main/**/properties/
-!**/src/test/**/properties/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
