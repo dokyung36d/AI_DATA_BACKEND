@@ -16,19 +16,18 @@ repositories {
 }
 
 dependencies {
-
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.projectlombok:lombok'
 	implementation 'jakarta.persistence:jakarta.persistence-api'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'mysql:mysql-connector-java:8.1.0'
+	implementation 'com.mysql:mysql-connector-j'
 
 	implementation 'org.hibernate:hibernate-core'
 	runtimeOnly 'org.hibernate:hibernate-orm'
 	runtimeOnly 'org.hibernate:hibernate-java'
 
-	runtimeOnly 'mysql:mysql-connector-java:8.1.0'
+//	runtimeOnly 'mysql:mysql-connector-java'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -42,4 +41,8 @@ compileJava {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+compileJava {
+	options.compilerArgs << '-parameters'
 }

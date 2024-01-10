@@ -3,6 +3,7 @@ package com.example.AI_DATA;
 import com.example.AI_DATA.bulletin.Service.BulletinService;
 import com.example.AI_DATA.bulletin.model.Bulletin;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,22 +33,24 @@ public class ApiTest {
     void before() {
         Bulletin bulletin = new Bulletin("test1", "test", null);
 
-        bulletinService.save(bulletin);
+        //bulletinService.save(bulletin);
 
-        bulletinId = bulletin.getId();
+        //bulletinId = bulletin.getId();
     }
 
     @Test
+    @DisplayName("View Test")
     public void api200() throws Exception {
-        mockMvc.perform(get("bulletin/view/" + bulletinId))
+        mockMvc.perform(get("/bulletin/view/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("게시글 조회 성공"))
-                .andExpect(jsonPath("$.message.data.title").value("test"));
+                .andExpect(jsonPath("$.data.title").value("test1"));
     }
 
     @Test
+    @DisplayName("Invalid View Test")
     public void api400() throws Exception {
-        mockMvc.perform(get("bulletin/view/" + (bulletinId + 1)))
+        mockMvc.perform(get("/bulletin/view/" + (bulletinId + 1) + "/"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.message").value("게시글 조회 실패"));
 

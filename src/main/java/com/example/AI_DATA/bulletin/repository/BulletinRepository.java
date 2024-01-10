@@ -5,6 +5,7 @@ import com.example.AI_DATA.bulletin.model.Bulletin;
 import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 
 import java.util.*;
 
@@ -17,17 +18,20 @@ public class BulletinRepository {
         this.entityManager = entityManager;
     }
 
+    @Transactional
     public void save(Bulletin bulletin) {
         entityManager.persist(bulletin);
     }
 
+    @Transactional
     public void deleteById(Long bulletinId) {
         entityManager.remove(findById(bulletinId));
     }
 
+    @Transactional
     public Optional<Bulletin> findById(Long bulletinId) {
         Bulletin bulletin =  entityManager.find(Bulletin.class, bulletinId);
-
+        System.out.println(bulletin);
         return Optional.ofNullable(bulletin);
     }
 
