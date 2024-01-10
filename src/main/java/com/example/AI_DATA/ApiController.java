@@ -24,16 +24,16 @@ public class ApiController {
     }
 
     @GetMapping("/bulletin/view/{id}")
-    public ResponseEntity<RestResponse> find(@PathVariable Long id) {
+    public ResponseEntity<RestResponse> find(@PathVariable("id") Long id) {
         RestResponse<Object> restResponse = new RestResponse<>();
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 
-        if (bulletin != null) {
+        if (!bulletin.isEmpty()) {
             restResponse = RestResponse.builder()
                     .code(HttpStatus.OK.value())
                     .httpStatus(HttpStatus.OK)
                     .message(Message.BULLETIN_FOUND.label())
-                    .data(bulletin)
+                    .data(bulletin.get())
                     .build();
         }
 
@@ -48,7 +48,7 @@ public class ApiController {
         return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
     }
 
-    @PostMapping("bulletin/save")
+    @PostMapping("/bulletin/save")
     public ResponseEntity<RestResponse> save(@RequestBody Bulletin bulletin) {
         this.bulletinService.save(bulletin);
         RestResponse<Object> restResponse = new RestResponse<>();
@@ -62,7 +62,7 @@ public class ApiController {
     }
 
 
-    @PutMapping("bulletin/modify/{id}")
+    @PutMapping("/bulletin/modify/{id}")
     public ResponseEntity<RestResponse> modify(@PathVariable Long id, @RequestBody Bulletin newBulletin) {
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 
@@ -90,7 +90,7 @@ public class ApiController {
 
     }
 
-    @DeleteMapping("bulletin/delete/{id}")
+    @DeleteMapping("/bulletin/delete/{id}")
     public ResponseEntity<RestResponse> delete(@PathVariable Long id) {
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 

@@ -24,7 +24,10 @@ public class BulletinService {
     public void deleteById(Long id) {this.bulletinRepository.deleteById(id);}
 
     public Optional<Bulletin> findById(Long id) {
-        return this.bulletinRepository.findById(id);
+
+        Optional<Bulletin> bulletin =  bulletinRepository.findById(id);
+
+        return bulletin;
     }
 
 }
