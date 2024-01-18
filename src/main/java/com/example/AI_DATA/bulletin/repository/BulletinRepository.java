@@ -25,7 +25,7 @@ public class BulletinRepository {
 
     @Transactional
     public void deleteById(Long bulletinId) {
-        entityManager.remove(findById(bulletinId));
+        entityManager.remove(findById(bulletinId).get());
     }
 
     @Transactional

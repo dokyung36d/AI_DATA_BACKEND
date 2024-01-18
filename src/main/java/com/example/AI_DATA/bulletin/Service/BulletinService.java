@@ -6,6 +6,7 @@ import com.example.AI_DATA.bulletin.model.Bulletin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.util.*;
 
 @Service
