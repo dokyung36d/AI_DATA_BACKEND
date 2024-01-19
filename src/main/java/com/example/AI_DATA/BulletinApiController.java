@@ -5,8 +5,6 @@ import com.example.AI_DATA.bulletin.model.Bulletin;
 
 import com.example.AI_DATA.restapi.Message;
 import com.example.AI_DATA.restapi.RestResponse;
-import lombok.val;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +13,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 
 @RestController
-public class ApiController {
+public class BulletinApiController {
     private final BulletinService bulletinService;
 
     @Autowired
-    public ApiController(BulletinService bulletinService) {
+    public BulletinApiController(BulletinService bulletinService) {
         this.bulletinService = bulletinService;
     }
 
