@@ -39,15 +39,27 @@ public class UserApiController {
         String loginId = request.getParameter("loginId");
         String loginPassword = request.getParameter("loginPassword");
 
+        HttpSession httpSession = request.getSession();
+
+        if (httpSession.getAttribute("loginId") != null) { return userResponse("you already logined", HttpStatus.BAD_REQUEST); }
+
         if (!this.userService.login(loginId, loginPassword)) { return userResponse("Login Failed", HttpStatus.BAD_REQUEST); }
 
         else {
-            HttpSession httpSession = request.getSession();
             httpSession.setAttribute("loginId", loginId);
             httpSession.setMaxInactiveInterval(60 * 30);
             return userResponse("Login Success", HttpStatus.OK);
         }
+    }
 
+    @PostMapping("/user/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(false);
+
+        if (httpSession == null || httpSession.getAttribute("loginId") == null) { return userResponse("You first login first", HttpStatus.UNAUTHORIZED);}
+
+        httpSession.invalidate();
+        return userResponse("Logout Successful", HttpStatus.OK);
     }
 
 

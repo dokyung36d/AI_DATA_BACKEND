@@ -8,13 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.net.http.HttpClient;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,15 +20,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApiTest {
+public class BulletinApiTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private BulletinService bulletinService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private Long bulletinId;
 
@@ -75,16 +68,4 @@ public class ApiTest {
                 .andExpect(jsonPath("$.message").value("게시글 조회 실패"));
     }
 
-    @Test
-    @DisplayName("Password Encoder test")
-    public void passwordEncoderTest() {
-        String rawPassword = "qwerty";
-
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-
-        assertAll(
-                () -> assertNotEquals(rawPassword, encodedPassword),
-                () -> assertTrue(passwordEncoder.matches(rawPassword, encodedPassword))
-        );
-    }
 }
