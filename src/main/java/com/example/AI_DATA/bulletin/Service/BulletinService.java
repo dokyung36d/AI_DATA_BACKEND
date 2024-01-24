@@ -22,7 +22,11 @@ public class BulletinService {
         this.bulletinRepository.save(bulletin);
     }
 
+    public void merge(Bulletin bulletin) { this.bulletinRepository.merge(bulletin); }
+
     public void deleteById(Long id) {this.bulletinRepository.deleteById(id);}
+
+
 
     public Optional<Bulletin> findById(Long id) {
 

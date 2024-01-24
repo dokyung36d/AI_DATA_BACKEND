@@ -35,6 +35,9 @@ public class BulletinRepository {
         return Optional.ofNullable(bulletin);
     }
 
+    @Transactional
+    public void merge(Bulletin bulletin) { entityManager.merge(bulletin); }
+
     public Optional<Bulletin> findByTitle(String findTitle) {
         Bulletin bulletin =  entityManager.createQuery("SELECT b From Bulletin b WHERE b.title = :findTitle", Bulletin.class)
                 .setParameter("findTitle", findTitle)

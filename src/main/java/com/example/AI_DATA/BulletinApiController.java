@@ -76,12 +76,13 @@ public class BulletinApiController {
         }
 
         bulletin = changeBulletin(bulletin, newBulletin);
-        bulletinService.save(bulletin.get());
+        bulletinService.merge(bulletin.get());
 
         restResponse = RestResponse.builder()
                 .code(HttpStatus.OK.value())
                 .httpStatus(HttpStatus.OK)
                 .message(Message.BULLETIN_MODIFY_SUCCESS.label())
+                .data(bulletin.get())
                 .build();
 
         return new ResponseEntity<>(restResponse, HttpStatus.OK);
