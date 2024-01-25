@@ -20,24 +20,24 @@ public class UserRepository {
         this.entityManager = entityManager;
     }
 
-    @Transactional
+
     public void save(User user) {
         entityManager.persist(user);
     }
 
-    @Transactional
+
     public void deleteById(String id) {
         entityManager.remove(findById(id).get());
     }
 
-    @Transactional
+
     public Optional<User> findById(String id) {
         User user = entityManager.find(User.class, id);
 
         return Optional.ofNullable(user);
     }
 
-    @Transactional
+
     public List<String> getAllUserIds() {
         // Use JPQL to select only the 'id' attribute
         String jpql = "SELECT u.id FROM user u";
@@ -48,7 +48,7 @@ public class UserRepository {
 
         return userIds;
     }
-    @Transactional
+
     public boolean checkTruePassword(String userId, String checkPassword) {
         Optional<User> user = findById(userId);
 
@@ -61,7 +61,7 @@ public class UserRepository {
         else { return false; }
     }
 
-    @Transactional
+
     public void updatePassword(String id, String newPassword) {
         User user = entityManager.find(User.class, id);
         user.setPassword(newPassword);
