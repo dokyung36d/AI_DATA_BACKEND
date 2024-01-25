@@ -21,7 +21,7 @@ public class UserApiController {
     public UserApiController(UserService userService) {this.userService = userService;}
 
     @PostMapping("/user/save")
-    public ResponseEntity<String> save(@RequestBody User user) {
+    public ResponseEntity<String> saveUser(@RequestBody User user) {
         String userId = user.getId();
         String userPassword = user.getPassword();
 
@@ -62,8 +62,28 @@ public class UserApiController {
         return userResponse("Logout Successful", HttpStatus.OK);
     }
 
+    @DeleteMapping("/user/delete")
+    public ResponseEntity<String> deleteUser(HttpServletRequest request) {
+    String loginId = request.getParameter("loginId");
+    String loginPassword = request.getParameter("loginPassword");
+
+    HttpSession httpSession = request.getSession();
+
+    if (httpSession.getAttribute("loginId") != null) { return userResponse("you first login to delete your account", HttpStatus.BAD_REQUEST); }
+
+    if ( !userService.checkIdPasswordMatching(loginId, loginPassword)) {
+        return userResponse("Wrong Password", HttpStatus.UNAUTHORIZED);
+    }
+
+    userService.deleteById(loginId);
+
+    return userResponse("Delete Account Successful", HttpStatus.OK);
+
+    }
+
 
     private ResponseEntity<String> userResponse(String message, HttpStatus status) {
         return new ResponseEntity<>(message, status);
     }
+
 }
