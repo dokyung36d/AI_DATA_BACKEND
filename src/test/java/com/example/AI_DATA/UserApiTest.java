@@ -4,6 +4,8 @@ import com.example.AI_DATA.user.model.User;
 import com.example.AI_DATA.user.service.UserService;
 import com.example.AI_DATA.UserApiController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.io.BufferedReader;
 import java.lang.reflect.Executable;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -84,11 +87,15 @@ public class UserApiTest {
     @Test
     @DisplayName("Delete account Test")
     void deleteAccountTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user/delete")
-                .param("id", "testId")
-                .param("password", "testPassword"))
+        String requestBody = "{ \"id\": \"testId\", \"password\": \"testPassword\" }";
+
+        mockMvc.perform(delete("/user/delete")
+                .contentType("application/json")
+                .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Delete Account Successful"));
 
     }
+
+
 }
