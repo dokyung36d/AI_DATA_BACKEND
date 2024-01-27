@@ -27,6 +27,7 @@ import java.lang.reflect.Executable;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserApiTest {
     @Autowired
     private MockMvc mockMvc;
@@ -52,6 +54,7 @@ public class UserApiTest {
 
     @Test
     @DisplayName("Password Encoder test")
+    @Order(1)
     public void passwordEncoderTest() {
         String rawPassword = "qwerty";
 
@@ -64,30 +67,35 @@ public class UserApiTest {
     }
 
     @Test
+    @Order(2)
     @DisplayName("Create account Test")
     public void createAccountTest() throws Exception {
-        UserApiController userApiController = new UserApiController(userService);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
+//        UserApiController userApiController = new UserApiController(userService);
+//
+//        mockMvc = MockMvcBuilders.standaloneSetup(userApiController).build();
 
         User user = new User(testId, testPassword);
         ObjectMapper objectMapper = new ObjectMapper();
         String userJson = objectMapper.writeValueAsString(user);
 
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/user/save")
-                .content(userJson)
-                .contentType("application/json");
+//        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+//                .post("/user/save")
+//                .contentType("application/json")
+//                .content(userJson);
 
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().isOk())
-                .andExpect(content().string("User save Successful"));
+
+        mockMvc.perform(post("/user/save")
+                        .contentType("application/json")
+                        .content(userJson))
+                        .andExpect(status().isOk())
+                        .andExpect(content().string("User save Successful"));
     }
 
     @Test
+    @Order(3)
     @DisplayName("Delete account Test")
     void deleteAccountTest() throws Exception {
-        String requestBody = "{ \"id\": \"testId\", \"password\": \"testPassword\" }";
+        String requestBody = "{ \"id\":\"testId\", \"password\":\"testPassword\" }";
 
         mockMvc.perform(delete("/user/delete")
                 .contentType("application/json")

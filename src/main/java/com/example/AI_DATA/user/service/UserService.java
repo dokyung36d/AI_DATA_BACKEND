@@ -51,7 +51,7 @@ public class UserService {
     }
 
     public boolean isValidId(String userId) {
-        if (userId.length() >= 6) { return false; }
+        if (userId.length() < 6) { return false; }
 
         List<String> idList = userRepository.getAllUserIds();
         if (idList.contains(userId)) { return false; }
@@ -68,8 +68,8 @@ public class UserService {
 
         if (user.isEmpty()) { return false; }
 
-        String encodedUserPassword = passwordEncoder.encode(userPassword);
-        if (user.get().getPassword() == encodedUserPassword) { return true; }
+
+        if (passwordEncoder.matches(userPassword, user.get().getPassword())) { return true; }
 
 
         return false;
