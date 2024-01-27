@@ -23,6 +23,9 @@ public class UserApiController {
     private final UserService userService;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     public UserApiController(UserService userService) {
         this.userService = userService;
     }
@@ -98,7 +101,10 @@ public class UserApiController {
         }
 
         if (!userService.checkIdPasswordMatching(loginId, loginPassword)) {
-            return userResponse("Wrong Password", HttpStatus.UNAUTHORIZED);
+            String suggestedPassword = passwordEncoder.encode(loginPassword);
+            String savedPassword = userService.findById(loginId).get().getPassword();
+            return userResponse("Wrong Password\n suggested password: " + suggestedPassword +
+                    "savedPassword : " + savedPassword, HttpStatus.UNAUTHORIZED);
         }
 
         userService.deleteById(loginId);

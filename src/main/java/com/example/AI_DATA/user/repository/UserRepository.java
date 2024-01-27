@@ -40,7 +40,7 @@ public class UserRepository {
 
     public List<String> getAllUserIds() {
         // Use JPQL to select only the 'id' attribute
-        String jpql = "SELECT u.id FROM user u";
+        String jpql = "SELECT u.id FROM com.example.AI_DATA.user.model.User u";
         Query query = entityManager.createQuery(jpql);
 
         // Execute the query and retrieve the results
