@@ -14,13 +14,18 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Executable;
@@ -33,6 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -93,6 +99,39 @@ public class UserApiTest {
 
     @Test
     @Order(3)
+    @DisplayName("Login and Logout Test")
+    void loginTest() throws Exception {
+        //Login Test
+        User user = new User(testId, testPassword);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = objectMapper.writeValueAsString(user);
+
+        MvcResult mvcResult = mockMvc.perform(post("/user/login")
+                    .contentType("application/json")
+                    .content(userJson))
+                    .andExpect(status().isOk())
+                    .andDo(MockMvcResultHandlers.print())
+                    .andReturn();
+
+        Object suggestedId = mvcResult.getRequest().getSession().getAttribute("loginId");
+
+        assertNotNull(suggestedId);
+        assertEquals(testId, suggestedId.toString());
+
+        MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        //Logout Test
+
+        MvcResult mvcResult1 = mockMvc.perform(post("/user/logout")
+                .session(session))
+                .andExpect(status().isOk())
+                .andReturn();
+
+    }
+
+
+    @Test
+    @Order(4)
     @DisplayName("Delete account Test")
     void deleteAccountTest() throws Exception {
         String requestBody = "{ \"id\":\"testId\", \"password\":\"testPassword\" }";
