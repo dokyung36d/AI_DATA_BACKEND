@@ -6,6 +6,7 @@ import com.example.AI_DATA.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,12 +40,20 @@ public class UserService {
     }
 
     @Transactional
+    public void update(User user) {
+        String encodedNewPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedNewPassword);
+
+        this.userRepository.update(user);
+    }
+
+    @Transactional
     public boolean login(String loginId, String loginPassword) {
         Optional<User> user = this.userRepository.findById(loginId);
 
         if (user.isEmpty()) { return false; }
 
-        if (user.get().getPassword() != passwordEncoder.encode(loginPassword)) { return false; }
+        if (passwordEncoder.matches(user.get().getPassword(), loginPassword)) { return false; }
 
         return true;
 

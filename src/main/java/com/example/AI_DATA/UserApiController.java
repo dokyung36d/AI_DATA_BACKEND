@@ -50,9 +50,11 @@ public class UserApiController {
 
     @PostMapping("/user/login")
     public ResponseEntity<String> login(HttpServletRequest request) {
-        String loginId = request.getParameter("loginId");
-        String loginPassword = request.getParameter("loginPassword");
+        Map<String, String> map = new HashMap<>();
+        map = convertHttpServletRequestToMap(request);
 
+        String loginId = map.get("id");
+        String loginPassword = map.get("password");
         HttpSession httpSession = request.getSession();
 
         if (httpSession.getAttribute("loginId") != null) {
@@ -78,6 +80,35 @@ public class UserApiController {
 
         httpSession.invalidate();
         return userResponse("Logout Successful", HttpStatus.OK);
+    }
+
+    @PostMapping("/user/changePassword")
+    public ResponseEntity<String> changePassword(HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(false);
+
+        if (httpSession == null || httpSession.getAttribute("loginId") == null) {
+            return userResponse("you first login first to change password", HttpStatus.UNAUTHORIZED);
+        }
+
+        Map<String, String> map = new HashMap<>();
+        map = convertHttpServletRequestToMap(request);
+
+        String newPassword = map.get("newPassword");
+
+        if (!userService.isValidPassword(newPassword)) {
+            return userResponse("Invalid Password Format", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<User> user = userService.findById(httpSession.getAttribute("loginId").toString());
+
+        if (user.isEmpty()) {
+            return userResponse("User Not Found", HttpStatus.NOT_FOUND);
+        }
+
+        user.get().setPassword(newPassword);
+        userService.update(user.get());
+
+        return userResponse("Password Change Successful", HttpStatus.OK);
     }
 
     @DeleteMapping("/user/delete")
