@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -129,9 +130,18 @@ public class UserApiTest {
 
     }
 
-
     @Test
     @Order(4)
+    @DisplayName("Password Change Test")
+    void changeAccountTest() throws Exception {
+        MockMvc mockMvc = loginAndReturnMockMvc();
+
+
+    }
+
+
+    @Test
+    @Order(5)
     @DisplayName("Delete account Test")
     void deleteAccountTest() throws Exception {
         String requestBody = "{ \"id\":\"testId\", \"password\":\"testPassword\" }";
@@ -144,5 +154,17 @@ public class UserApiTest {
 
     }
 
+    MockMvc loginAndReturnMockMvc() throws Exception {
+        User user = new User(testId, testPassword);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = objectMapper.writeValueAsString(user);
+
+        MvcResult mvcResult = mockMvc.perform(post("user/login")
+                .contentType("application/json")
+                .content(userJson))
+                .andReturn();
+
+        return mockMvc;
+    }
 
 }
