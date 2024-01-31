@@ -1,7 +1,9 @@
 package com.example.AI_DATA;
 
+import com.example.AI_DATA.user.config.SessionConfig;
 import com.example.AI_DATA.user.service.UserService;
 import com.example.AI_DATA.user.model.User;
+import com.example.AI_DATA.user.config.SessionConfig.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -57,17 +59,25 @@ public class UserApiController {
         String loginPassword = map.get("password");
         HttpSession httpSession = request.getSession();
 
-        if (httpSession.getAttribute("loginId") != null) {
-            return userResponse("you already logined", HttpStatus.BAD_REQUEST);
-        }
+//        if (httpSession.getAttribute("loginId") != null) {
+//            return userResponse("you already logined", HttpStatus.BAD_REQUEST);
+//        }
 
         if (!this.userService.login(loginId, loginPassword)) {
             return userResponse("Login Failed", HttpStatus.BAD_REQUEST);
-        } else {
+        }
+
+        if (SessionConfig.checkSessionAlreadyExist(loginId)) {
             httpSession.setAttribute("loginId", loginId);
             httpSession.setMaxInactiveInterval(60 * 30);
-            return userResponse("Login Success", HttpStatus.OK);
+
+            return userResponse("you already login, So Previous Session Removed", HttpStatus.OK);
         }
+
+        httpSession.setAttribute("loginId", loginId);
+        httpSession.setMaxInactiveInterval(60 * 30);
+        return userResponse("Login Success", HttpStatus.OK);
+
     }
 
     @PostMapping("/user/logout")
