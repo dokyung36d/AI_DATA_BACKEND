@@ -1,35 +1,23 @@
 package com.example.AI_DATA;
 
+import com.example.AI_DATA.dto.user.PasswordChangeDTO;
 import com.example.AI_DATA.user.model.User;
 import com.example.AI_DATA.user.service.UserService;
-import com.example.AI_DATA.UserApiController;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.io.BufferedReader;
-import java.lang.reflect.Executable;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,15 +25,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import static org.junit.jupiter.api.Assertions.*;
+import jakarta.servlet.http.HttpSession;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserApiTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private MockMvc mockMvc1;
 
     @Autowired
     private UserService userService;
@@ -55,6 +47,7 @@ public class UserApiTest {
 
     private String testId = "testId";
     private String testPassword = "testPassword";
+    private String changedPassword = "changedNewPassword";
 
 //    @BeforeEach
 //    void before()
@@ -132,39 +125,86 @@ public class UserApiTest {
 
     @Test
     @Order(4)
+    @DisplayName("Double Login Test")
+    void checkDoubleLogin() throws Exception {
+        //Login Test
+        User user = new User(testId, testPassword);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = objectMapper.writeValueAsString(user);
+
+        MvcResult mvcResult = mockMvc.perform(post("/user/login")
+                        .contentType("application/json")
+                        .content(userJson))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        //Double login
+
+        MvcResult mvcResult1 = mockMvc1.perform(post("/user/login")
+                        .contentType("application/json")
+                        .content(userJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string("you already login, So Previous Session Removed"))
+                .andReturn();
+    }
+
+    @Test
+    @Order(5)
     @DisplayName("Password Change Test")
     void changeAccountTest() throws Exception {
-        MockMvc mockMvc = loginAndReturnMockMvc();
+        MockHttpSession session = loginAndReturnSession();
 
+        PasswordChangeDTO passwordChangeDTO = new PasswordChangeDTO(testPassword, changedPassword);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String passwordChangeDTOJson = objectMapper.writeValueAsString(passwordChangeDTO);
 
+        assertNotNull(session.getAttribute("loginId"));
+
+        mockMvc.perform(post("/user/changePassword")
+                        .session(session)
+                .contentType("application/json")
+                .content(passwordChangeDTOJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Password Change Successful"));
     }
 
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("Delete account Test")
     void deleteAccountTest() throws Exception {
-        String requestBody = "{ \"id\":\"testId\", \"password\":\"testPassword\" }";
+//        String requestBody = "{ \"id\":\"testId\", \"password\":\"testPassword\" }";
+
+        User user = new User(testId, changedPassword);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String deleteJson = objectMapper.writeValueAsString(user);
+
 
         mockMvc.perform(delete("/user/delete")
                 .contentType("application/json")
-                .content(requestBody))
+                .content(deleteJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Delete Account Successful"));
 
     }
 
-    MockMvc loginAndReturnMockMvc() throws Exception {
+    MockHttpSession loginAndReturnSession() throws Exception {
         User user = new User(testId, testPassword);
         ObjectMapper objectMapper = new ObjectMapper();
         String userJson = objectMapper.writeValueAsString(user);
 
-        MvcResult mvcResult = mockMvc.perform(post("user/login")
+        MvcResult mvcResult = mockMvc.perform(post("/user/login")
                 .contentType("application/json")
                 .content(userJson))
                 .andReturn();
 
-        return mockMvc;
+
+        MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        assertNotNull(session.getAttribute("loginId"));
+
+        return session;
     }
 
 }
