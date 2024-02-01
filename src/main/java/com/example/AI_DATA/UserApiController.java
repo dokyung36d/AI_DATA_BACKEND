@@ -28,6 +28,9 @@ public class UserApiController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private SessionConfig sessionConfig;
+
+    @Autowired
     public UserApiController(UserService userService) {
         this.userService = userService;
     }
@@ -67,7 +70,7 @@ public class UserApiController {
             return userResponse("Login Failed", HttpStatus.BAD_REQUEST);
         }
 
-        if (SessionConfig.checkSessionAlreadyExist(loginId)) {
+        if (sessionConfig.checkSessionAlreadyExist(loginId)) {
             httpSession.setAttribute("loginId", loginId);
             httpSession.setMaxInactiveInterval(60 * 30);
 

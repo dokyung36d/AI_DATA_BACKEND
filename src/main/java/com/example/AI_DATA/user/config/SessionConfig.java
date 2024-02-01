@@ -13,9 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+@Configuration
 @WebListener
 public class SessionConfig implements HttpSessionListener {
-    private static final Map<String, HttpSession> sessions = new HashMap<>();
+    public static Map<String, HttpSession> sessions = new HashMap<>();
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
@@ -31,12 +32,13 @@ public class SessionConfig implements HttpSessionListener {
     }
 
     public synchronized static boolean checkSessionAlreadyExist(String compareId) {
+
         for (String sessionId : sessions.keySet()) {
             HttpSession httpSession =sessions.get(sessionId);
 
-            if (httpSession == null || httpSession.getAttribute("logindId") == null) { return false; }
+            if (httpSession == null || httpSession.getAttribute("loginId") == null) { return false; }
             if (httpSession.getAttribute("loginId").equals(compareId)) {
-                removeSessionForDoubleLogin(httpSession.getAttribute("loginId").toString());
+                removeSessionForDoubleLogin(sessionId);
                 return true;
             }
         }
