@@ -1,15 +1,18 @@
 package com.example.AI_DATA;
 
 import com.example.AI_DATA.dto.user.PasswordChangeDTO;
+import com.example.AI_DATA.user.config.SessionConfig;
 import com.example.AI_DATA.user.model.User;
 import com.example.AI_DATA.user.service.UserService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSessionEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
 
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +41,9 @@ public class UserApiTest {
 
     @Autowired
     private MockMvc mockMvc1;
+
+    @Autowired
+    private SessionConfig sessionConfig;
 
     @Autowired
     private UserService userService;
@@ -139,14 +145,23 @@ public class UserApiTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
-        //Double login
+        HttpSession session = mvcResult.getRequest().getSession();
 
-        MvcResult mvcResult1 = mockMvc1.perform(post("/user/login")
+        assertNotNull(session.getAttribute("loginId"));
+
+        HttpSessionEvent httpSessionEvent = new HttpSessionEvent(session);
+
+        sessionConfig.sessionCreated(httpSessionEvent);
+
+        assert !sessionConfig.sessions.isEmpty();
+
+        MvcResult mvcResult1 = mockMvc.perform(post("/user/login")
                         .contentType("application/json")
                         .content(userJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("you already login, So Previous Session Removed"))
                 .andReturn();
+
     }
 
     @Test
