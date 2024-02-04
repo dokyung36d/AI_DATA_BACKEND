@@ -5,11 +5,21 @@ import com.example.AI_DATA.bulletin.model.Bulletin;
 
 import com.example.AI_DATA.restapi.Message;
 import com.example.AI_DATA.restapi.RestResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import jakarta.servlet.http.Part;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @RestController
@@ -33,9 +43,7 @@ public class BulletinApiController {
                     .message(Message.BULLETIN_FOUND.label())
                     .data(bulletin.get())
                     .build();
-        }
-
-        else {
+        } else {
             restResponse = RestResponse.builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .httpStatus(HttpStatus.NOT_FOUND)
@@ -58,6 +66,45 @@ public class BulletinApiController {
                 .build();
         return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
     }
+
+    @PostMapping("/bulletin/save/image")
+    public ResponseEntity<RestResponse> saveBulletinWithImage(HttpServletRequest request) throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map = convertHttpServletRequestToMap(request);
+
+        RestResponse<Object> restResponse = new RestResponse<>();
+
+        Part jpgFilePart = request.getPart("file");
+        String fileName = jpgFilePart.getSubmittedFileName();
+
+        Path targetPath = Path.of("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image" + fileName);
+
+        try (InputStream fileContent = jpgFilePart.getInputStream()) {
+            Files.copy(fileContent, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            Bulletin bulletin = new Bulletin(map.get("title").toString(), map.get("label").toString(), targetPath.toString());
+            this.bulletinService.save(bulletin);
+
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.OK.value())
+                    .httpStatus(HttpStatus.OK)
+                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
+                    .build();
+
+            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(Message.BULLETIN_SAVE_FAILED.label())
+                    .build();
+
+            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
 
 
     @PutMapping("/bulletin/modify/{id}")
@@ -122,8 +169,33 @@ public class BulletinApiController {
 
         bulletin.setLabel(newBulletin.getLabel());
         bulletin.setTitle(newBulletin.getTitle());
-        bulletin.setImageData(newBulletin.getImageData());
+        bulletin.setImageFilePath(newBulletin.getImageFilePath());
 
         return Optional.of(bulletin);
+    }
+
+    public Map<String, String> convertHttpServletRequestToMap(HttpServletRequest httpServletRequest) {
+        Map<String, String> map = new HashMap<>();
+
+        try (BufferedReader reader = httpServletRequest.getReader()) {
+            StringBuilder requestBody = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                requestBody.append(line);
+            }
+
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            map = objectMapper.readValue(requestBody.toString(), HashMap.class);
+
+
+        } catch (IOException e) {
+            // Handle IOException appropriately
+            e.printStackTrace();
+        }
+
+        return map;
     }
 }

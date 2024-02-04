@@ -49,5 +49,4 @@ public class BulletinRepository {
         return entityManager.createQuery("SELECT b FROM Bulletin b", Bulletin.class)
                 .getResultList();
     }
-
 }
