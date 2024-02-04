@@ -3,6 +3,7 @@ package com.example.AI_DATA;
 import com.example.AI_DATA.BulletinApiController;
 import com.example.AI_DATA.bulletin.Service.BulletinService;
 import com.example.AI_DATA.bulletin.model.Bulletin;
+import com.example.AI_DATA.bulletin.repository.BulletinRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayName;
 
@@ -12,21 +13,29 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.http.MediaType;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
+
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.awt.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -37,9 +46,10 @@ public class BulletinApiTest {
     @Autowired
     private BulletinService bulletinService;
 
+
     private Long bulletinId;
 
-    @BeforeEach
+    @BeforeEach //replace with making new bulletin test
     void before() {
         Bulletin bulletin = new Bulletin("test1", "test", null);
 
@@ -47,6 +57,50 @@ public class BulletinApiTest {
 
         bulletinId = bulletin.getId();
     }
+
+    @Test
+    @DisplayName("Bulletin Save Test without Image")
+    public void bulletinSaveTestWithOutImage() throws Exception {
+        Bulletin bulletin = new Bulletin("test1", "test", null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String bulletinJson = objectMapper.writeValueAsString(bulletin);
+
+        MvcResult mvcResult = mockMvc.perform(post("/bulletin/save")
+                .contentType("application/json")
+                .content(bulletinJson))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("Bulletin Save Test With Image")
+    public void bulletinSaveTestWithImage() throws Exception {
+        Bulletin bulletin = new Bulletin("test1", "test", null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String bulletinJson = objectMapper.writeValueAsString(bulletin);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\src\\test\\java\\com\\example\\AI_DATA\\image",
+                MediaType.IMAGE_JPEG_VALUE,
+                "fileContent".getBytes()
+        );
+
+        assert !file.isEmpty();
+
+        mockMvc = MockMvcBuilders.standaloneSetup(new BulletinApiController(this.bulletinService))
+                .build();
+
+        MvcResult mvcResult = mockMvc.perform(multipart("/bulletin/save/image")
+                .file(file)
+                        .content(bulletinJson)
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+    }
+
+
 
     @Test
     @DisplayName("View Test")

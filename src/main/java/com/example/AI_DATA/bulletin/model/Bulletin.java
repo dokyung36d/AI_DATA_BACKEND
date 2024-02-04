@@ -15,14 +15,13 @@ public class Bulletin {
 
     private String title;
     private String label;
+    private String imageFilePath;
 
-    @Lob
-    private byte[] imageData;
 
-    public Bulletin(String title, String label, byte[] imageData) {
+    public Bulletin(String title, String label, String imageFilePath) {
         this.title = title;
         this.label = label;
-        this.imageData = imageData;
+        this.imageFilePath = imageFilePath;
     }
 
     public Bulletin() {}
