@@ -74,8 +74,14 @@ public class BulletinApiController {
 
         RestResponse<Object> restResponse = new RestResponse<>();
 
+        Collection<Part> parts = request.getParts();
+        assert parts.size() != 0;
+
         Part jpgFilePart = request.getPart("file");
-        String fileName = jpgFilePart.getSubmittedFileName();
+
+        assert jpgFilePart != null;
+
+        String fileName = jpgFilePart.getName();
 
         Path targetPath = Path.of("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image" + fileName);
 

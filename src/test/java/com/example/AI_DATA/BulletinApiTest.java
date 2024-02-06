@@ -36,6 +36,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.awt.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -80,11 +82,14 @@ public class BulletinApiTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String bulletinJson = objectMapper.writeValueAsString(bulletin);
 
+        String filePath = "C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\src\\test\\java\\com\\example\\AI_DATA\\image\\00BY54RO.jpg";
+        byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
+
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\src\\test\\java\\com\\example\\AI_DATA\\image",
+                "testImage.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "fileContent".getBytes()
+                fileContent
         );
 
         assert !file.isEmpty();
@@ -93,9 +98,10 @@ public class BulletinApiTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(multipart("/bulletin/save/image")
-                .file(file)
-                        .content(bulletinJson)
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+                                .file(file)
+                                .content(bulletinJson)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                        )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
     }
