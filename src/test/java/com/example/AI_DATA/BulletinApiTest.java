@@ -48,6 +48,9 @@ public class BulletinApiTest {
     @Autowired
     private BulletinService bulletinService;
 
+    @Autowired
+    private BulletinApiController bulletinApiController;
+
 
     private Long bulletinId;
 
@@ -92,15 +95,14 @@ public class BulletinApiTest {
                 fileContent
         );
 
-        assert !file.isEmpty();
+        assert file.getBytes().length!=0;
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new BulletinApiController(this.bulletinService))
-                .build();
+
 
         MvcResult mvcResult = mockMvc.perform(multipart("/bulletin/save/image")
                                 .file(file)
                                 .content(bulletinJson)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .contentType("application/json")
                         )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();

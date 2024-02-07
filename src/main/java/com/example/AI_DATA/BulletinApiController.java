@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import jakarta.servlet.http.Part;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
@@ -68,27 +70,22 @@ public class BulletinApiController {
     }
 
     @PostMapping("/bulletin/save/image")
-    public ResponseEntity<RestResponse> saveBulletinWithImage(HttpServletRequest request) throws Exception {
-        Map<String, String> map = new HashMap<>();
-        map = convertHttpServletRequestToMap(request);
+    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestBody Bulletin bulletin,
+                                                              @RequestPart("file") MultipartFile file) throws Exception {
 
         RestResponse<Object> restResponse = new RestResponse<>();
 
-        Collection<Part> parts = request.getParts();
-        assert parts.size() != 0;
+        String fileName = file.getName();
+        assert fileName.length()!=0;
+        fileName+=".jpg";
 
-        Part jpgFilePart = request.getPart("file");
+        Path basePath = Paths.get("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image");
+        Path targetPath = basePath.resolve(fileName);
 
-        assert jpgFilePart != null;
-
-        String fileName = jpgFilePart.getName();
-
-        Path targetPath = Path.of("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image" + fileName);
-
-        try (InputStream fileContent = jpgFilePart.getInputStream()) {
+        try (InputStream fileContent = file.getInputStream()) {
             Files.copy(fileContent, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            Bulletin bulletin = new Bulletin(map.get("title").toString(), map.get("label").toString(), targetPath.toString());
+            bulletin.setImageFilePath(targetPath.toString());
             this.bulletinService.save(bulletin);
 
             restResponse = RestResponse.builder()
