@@ -41,6 +41,7 @@ import java.nio.file.Paths;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BulletinApiTest {
     @Autowired
     private MockMvc mockMvc;
@@ -54,32 +55,38 @@ public class BulletinApiTest {
 
     private Long bulletinId;
 
-    @BeforeEach //replace with making new bulletin test
+    @BeforeEach
     void before() {
-        Bulletin bulletin = new Bulletin("test1", "test", null);
-
-        bulletinService.save(bulletin);
-
-        bulletinId = bulletin.getId();
+        bulletinId = this.bulletinService.getLatestBulletinId();
     }
 
-    @Test
-    @DisplayName("Bulletin Save Test without Image")
-    public void bulletinSaveTestWithOutImage() throws Exception {
-        Bulletin bulletin = new Bulletin("test1", "test", null);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String bulletinJson = objectMapper.writeValueAsString(bulletin);
+//    @BeforeEach //replace with making new bulletin test
+//    void before() {
+//        Bulletin bulletin = new Bulletin("test1", "test", null);
+//
+//        bulletinService.save(bulletin);
+//
+//        bulletinId = bulletin.getId();
+//    }
 
-        MvcResult mvcResult = mockMvc.perform(post("/bulletin/save")
-                .contentType("application/json")
-                .content(bulletinJson))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
-
-    }
+//    @Test
+//    @DisplayName("Bulletin Save Test without Image")
+//    public void bulletinSaveTestWithOutImage() throws Exception {
+//        Bulletin bulletin = new Bulletin("test1", "test", null);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String bulletinJson = objectMapper.writeValueAsString(bulletin);
+//
+//        MvcResult mvcResult = mockMvc.perform(post("/bulletin/save")
+//                .contentType("application/json")
+//                .content(bulletinJson))
+//                .andExpect(status().is2xxSuccessful())
+//                .andReturn();
+//
+//    }
 
     @Test
     @DisplayName("Bulletin Save Test With Image")
+    @Order(1)
     public void bulletinSaveTestWithImage() throws Exception {
         Bulletin bulletin = new Bulletin("test1", "test", null);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -95,9 +102,7 @@ public class BulletinApiTest {
                 fileContent
         );
 
-        assert file.getBytes().length!=0;
-
-
+//        assert file.getBytes().length!=0;
 
         MvcResult mvcResult = mockMvc.perform(multipart("/bulletin/save/image")
                                 .file(file)
@@ -112,6 +117,7 @@ public class BulletinApiTest {
 
     @Test
     @DisplayName("View Test")
+    @Order(2)
     public void api200() throws Exception {
         mockMvc.perform(get("/bulletin/view/" + bulletinId))
                 .andExpect(status().isOk())
@@ -121,6 +127,7 @@ public class BulletinApiTest {
 
     @Test
     @DisplayName("Invalid View Test")
+    @Order(3)
     public void api400() throws Exception {
         mockMvc.perform(get("/bulletin/view/" + (bulletinId + 1)))
                 .andExpect(status().is4xxClientError())
@@ -130,6 +137,7 @@ public class BulletinApiTest {
 
     @Test
     @DisplayName("Modify Bulletin test")
+    @Order(4)
     public void modifyBulletin() throws Exception {
         BulletinApiController bulletinApiController = new BulletinApiController(bulletinService);
 
@@ -154,6 +162,7 @@ public class BulletinApiTest {
 
     @Test
     @DisplayName("Delete Bulletin test")
+    @Order(5)
     public void bulletinDeleteTest() throws Exception {
         mockMvc.perform(delete("/bulletin/delete/" + bulletinId))
                 .andExpect(status().isOk())

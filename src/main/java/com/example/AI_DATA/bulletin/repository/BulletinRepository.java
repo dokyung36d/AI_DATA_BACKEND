@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.transaction.Transactional;
+import jakarta.persistence.Query;
 
 import java.util.*;
 
@@ -37,6 +38,20 @@ public class BulletinRepository {
 
     @Transactional
     public void merge(Bulletin bulletin) { entityManager.merge(bulletin); }
+
+    @Transactional
+    public long countRows() {
+        Query query = entityManager.createQuery("SELECT COUNT(*) FROM Bulletin");
+
+        return ((long) query.getSingleResult());
+    }
+
+    @Transactional
+    public long getLatestBulletinId() {
+        Query query = entityManager.createQuery("SELECT MAX(id) FROM Bulletin");
+
+        return ((long) query.getSingleResult());
+    }
 
     public Optional<Bulletin> findByTitle(String findTitle) {
         Bulletin bulletin =  entityManager.createQuery("SELECT b From Bulletin b WHERE b.title = :findTitle", Bulletin.class)

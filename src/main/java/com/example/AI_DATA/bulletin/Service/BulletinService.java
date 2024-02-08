@@ -26,6 +26,10 @@ public class BulletinService {
 
     public void deleteById(Long id) {this.bulletinRepository.deleteById(id);}
 
+    public long getRowNumber() { return this.bulletinRepository.countRows(); }
+
+    public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
+
 
 
     public Optional<Bulletin> findById(Long id) {
