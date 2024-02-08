@@ -27,6 +27,7 @@ import java.util.*;
 @RestController
 public class BulletinApiController {
     private final BulletinService bulletinService;
+    Path basePath = Paths.get("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image");
 
     @Autowired
     public BulletinApiController(BulletinService bulletinService) {
@@ -76,10 +77,9 @@ public class BulletinApiController {
         RestResponse<Object> restResponse = new RestResponse<>();
 
         String fileName = file.getName();
-        assert fileName.length()!=0;
+//        assert fileName.length()!=0;
         fileName+=".jpg";
 
-        Path basePath = Paths.get("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image");
         Path targetPath = basePath.resolve(fileName);
 
         try (InputStream fileContent = file.getInputStream()) {
