@@ -45,7 +45,7 @@ public class BulletinService {
 
     public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
 
-    public void sendRequestToAIServer(String imagePath) {
+    public Optional<Map<String, String>> sendRequestToAIServer(String imagePath) {
         String url = "http://localhost:8081//AICOSS/image/prediction";
         File jpgFile = new File(imagePath);
 
@@ -54,17 +54,26 @@ public class BulletinService {
 
         FileSystemResource fileSystemResource = new FileSystemResource(jpgFile);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("jpgFile", fileSystemResource);
+        body.add("file", fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            ObjectMapper objectMapper = new ObjectMapper();
+        if (!response.getStatusCode().is2xxSuccessful()) { return Optional.ofNullable(null); }
 
-            Map<String, String> resultMap = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
-        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            Map<String, String> resultMap = objectMapper.readValue(response.getBody(), HashMap.class);
+
+            assert resultMap.size() != 0;
+
+            return Optional.of(resultMap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.ofNullable(null); }
     }
 
 
