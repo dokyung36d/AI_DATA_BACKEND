@@ -132,12 +132,20 @@ public class BulletinApiTest {
         mockMvc.perform(get("/bulletin/view/" + (bulletinId + 1)))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.message").value("게시글 조회 실패"));
+    }
 
+    @Test
+    @DisplayName("Get AI Prediction Test")
+    @Order(4)
+    public void getAiPrediction() throws Exception {
+        mockMvc.perform(get("/bulletin/prediction/" + bulletinId))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
     @Test
     @DisplayName("Modify Bulletin test")
-    @Order(4)
+    @Order(5)
     public void modifyBulletin() throws Exception {
         BulletinApiController bulletinApiController = new BulletinApiController(bulletinService);
 
@@ -162,7 +170,7 @@ public class BulletinApiTest {
 
     @Test
     @DisplayName("Delete Bulletin test")
-    @Order(5)
+    @Order(6)
     public void bulletinDeleteTest() throws Exception {
         mockMvc.perform(delete("/bulletin/delete/" + bulletinId))
                 .andExpect(status().isOk())

@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Collectors;
 import java.util.*;
 
 @RestController
@@ -51,6 +52,34 @@ public class BulletinApiController {
                     .code(HttpStatus.NOT_FOUND.value())
                     .httpStatus(HttpStatus.NOT_FOUND)
                     .message(Message.BULLETIN_NOT_FOUND.label())
+                    .build();
+        }
+
+        return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
+    }
+
+    @GetMapping("bulletin/prediction/{id}")
+    public ResponseEntity<RestResponse> getAIPrediction(@PathVariable("id") Long id) {
+        RestResponse<Object> restResponse = new RestResponse<>();
+        Optional<Bulletin> bulletin = bulletinService.findById(id);
+
+        Optional<Map<String, String>> aiPrediction = bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
+
+        if (aiPrediction.isEmpty()) {
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(Message.BULLETIN_AI_PREDICTION_FAILED.label())
+                    .build();
+        }
+
+        else {
+            String aiPredictionStringFormat = getAiPredictionAsStringFormat(aiPrediction.get());
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.OK.value())
+                    .httpStatus(HttpStatus.OK)
+                    .message(aiPredictionStringFormat)
+                    .data(bulletin.get())
                     .build();
         }
 
@@ -200,5 +229,13 @@ public class BulletinApiController {
         }
 
         return map;
+    }
+
+    public String getAiPredictionAsStringFormat(Map<String, String> inputMap) {
+        return inputMap.entrySet()
+                .stream()
+                .filter(entry -> "1".equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.joining(", "));
     }
 }

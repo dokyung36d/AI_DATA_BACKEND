@@ -8,7 +8,11 @@ public enum Message {
     BULLETIN_MODIFY_SUCCESS("게시글 수정 성공"),
     BULLETIN_MODIFY_FAILED("게시글 수정 실패"),
     BULLETIN_DELETE_SUCCESS("게시글 삭제 성공"),
-    BULLETIN_DELETE_FAILED("게시슬 삭제 실패");
+    BULLETIN_DELETE_FAILED("게시슬 삭제 실패"),
+    BULLETIN_AI_PREDICTION_SUCCESS("인공지능 서버 결과 불러오기 성공"),
+    BULLETIN_AI_PREDICTION_FAILED("인공지능 서버 결과 불러오기 실패");
+
+
 
 
     private final String label;
