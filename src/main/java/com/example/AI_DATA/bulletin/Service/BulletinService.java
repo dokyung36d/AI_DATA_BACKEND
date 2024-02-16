@@ -72,7 +72,7 @@ public class BulletinService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String jsonString = preprocessRestResponse(response);
+            String jsonString = preprocessRestResponseToString(response);
             Map<String, String> resultMap = objectMapper.readValue(jsonString, Map.class);
 
 
@@ -90,7 +90,7 @@ public class BulletinService {
         return bulletin;
     }
 
-    public String preprocessRestResponse(ResponseEntity<String> response) {
+    public String preprocessRestResponseToString(ResponseEntity<String> response) {
         String jsonString = response.getBody().substring(1, response.getBody().length() - 1); // to remove /" first and last
         jsonString = jsonString.replace("\\\"", "\"");
 
