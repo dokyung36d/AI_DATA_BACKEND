@@ -16,8 +16,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-
+import java.lang.reflect.Type;
 import java.io.File;
 import java.util.*;
 
@@ -61,13 +63,18 @@ public class BulletinService {
 
         if (!response.getStatusCode().is2xxSuccessful()) { return Optional.ofNullable(null); }
 
+//        System.out.println(response.getBody());
+//        Gson gson = new Gson();
+//        Type type = new TypeToken<Map<String, String>>() {}.getType();
+//        Map<String, String> map = gson.fromJson(response.getBody(), type);
+//
+//        return Optional.ofNullable(map);
 
         ObjectMapper objectMapper = new ObjectMapper();
-
         try {
-            Map<String, String> resultMap = objectMapper.readValue(response.getBody(), HashMap.class);
+            String jsonString = preprocessRestResponse(response);
+            Map<String, String> resultMap = objectMapper.readValue(jsonString, Map.class);
 
-            assert resultMap.size() != 0;
 
             return Optional.of(resultMap);
 
@@ -76,13 +83,18 @@ public class BulletinService {
             return Optional.ofNullable(null); }
     }
 
-
-
     public Optional<Bulletin> findById(Long id) {
 
         Optional<Bulletin> bulletin =  bulletinRepository.findById(id);
 
         return bulletin;
+    }
+
+    public String preprocessRestResponse(ResponseEntity<String> response) {
+        String jsonString = response.getBody().substring(1, response.getBody().length() - 1); // to remove /" first and last
+        jsonString = jsonString.replace("\\\"", "\"");
+
+        return jsonString;
     }
 
 }

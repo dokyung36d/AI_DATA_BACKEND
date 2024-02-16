@@ -24,6 +24,7 @@ dependencies {
 	implementation 'com.mysql:mysql-connector-j'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'com.google.code.gson:gson'
 
 
 	implementation 'org.hibernate:hibernate-core'

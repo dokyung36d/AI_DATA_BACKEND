@@ -75,6 +75,7 @@ public class BulletinApiController {
 
         else {
             String aiPredictionStringFormat = getAiPredictionAsStringFormat(aiPrediction.get());
+
             restResponse = RestResponse.builder()
                     .code(HttpStatus.OK.value())
                     .httpStatus(HttpStatus.OK)
@@ -134,9 +135,6 @@ public class BulletinApiController {
             return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
 
 
     @PutMapping("/bulletin/modify/{id}")
