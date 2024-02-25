@@ -48,7 +48,7 @@ public class BulletinService {
     public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
 
     public Optional<Map<String, String>> sendRequestToAIServer(String imagePath) {
-        String url = "http://localhost:8081//AICOSS/image/prediction";
+        String url = "http://ec2-3-34-171-214.ap-northeast-2.compute.amazonaws.com/AICOSS/image/prediction";
         File jpgFile = new File(imagePath);
 
         HttpHeaders headers = new HttpHeaders();
@@ -74,6 +74,7 @@ public class BulletinService {
         try {
             String jsonString = preprocessRestResponseToString(response);
             Map<String, String> resultMap = objectMapper.readValue(jsonString, Map.class);
+            System.out.println(resultMap);
 
 
             return Optional.of(resultMap);
