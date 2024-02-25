@@ -27,9 +27,9 @@ dependencies {
 	implementation 'com.google.code.gson:gson'
 
 
-	implementation 'org.hibernate:hibernate-core'
-	runtimeOnly 'org.hibernate:hibernate-orm'
-	runtimeOnly 'org.hibernate:hibernate-java'
+	runtimeOnly 'org.hibernate:hibernate-core:6.4.4.Final'
+	//runtimeOnly 'org.hibernate:hibernate-orm:6.4.4.Final'
+	//runtimeOnly 'org.hibernate:hibernate-java:6.4.4.Final'
 
 //	runtimeOnly 'mysql:mysql-connector-java'
 
