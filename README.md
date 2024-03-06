@@ -16,3 +16,13 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 </code></pre>
 
 The above content is for MySQL.
+
+My code works with [this](https://github.com/dokyung36d/AICOSS_Fastapi)
+So if you want to pass all test code, then you have to deploy above project.
+
+You can easily deploy above project using dockerhub.
+<pre><code>
+docker pull dokyung36d/aicoss:fastapi
+</code></pre>
+
+The detail of AI-model is available in [this link](https://github.com/dokyung36d/2023-AICOSS)
