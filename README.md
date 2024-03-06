@@ -1,4 +1,4 @@
-This repository contains basic spring code which contains implementation of of bulletin, joining membership, login, logout function.
+This repository contains basic spring code that implements bulletin, joining membership, login, logout function.
 
 You can deploy my project using Dockerfile.
 but you have to write application.properties file to connect with the database.
