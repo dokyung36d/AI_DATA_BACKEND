@@ -1,5 +1,9 @@
 This repository contains basic spring code that implements bulletin, joining membership, login, logout function.
 
+System Architecture
+
+<img src="2024032115531447124805.png" alt="Image Alt Text" width="600" height="900" style="margin: -100px 0;">
+
 You can deploy my project using Dockerfile.
 but you have to write application.properties file to connect with the database.
 
