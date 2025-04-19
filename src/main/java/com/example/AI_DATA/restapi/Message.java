@@ -10,7 +10,9 @@ public enum Message {
     BULLETIN_DELETE_SUCCESS("게시글 삭제 성공"),
     BULLETIN_DELETE_FAILED("게시슬 삭제 실패"),
     BULLETIN_AI_PREDICTION_SUCCESS("인공지능 서버 결과 불러오기 성공"),
-    BULLETIN_AI_PREDICTION_FAILED("인공지능 서버 결과 불러오기 실패");
+    BULLETIN_AI_PREDICTION_FAILED("인공지능 서버 결과 불러오기 실패"),
+    BULLETIN_URL_EXIST("게시글 URL 검색 성공"),
+    BULLETIN_URL_NOT_EXIST("게시글에 URL이 존재하지 않음");
 
 
 

@@ -100,41 +100,41 @@ public class BulletinApiController {
         return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
     }
 
-    @PostMapping("/bulletin/save/image")
-    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestBody Bulletin bulletin,
-                                                              @RequestPart("file") MultipartFile file) throws Exception {
-
-        RestResponse<Object> restResponse = new RestResponse<>();
-
-        String fileName = file.getName();
-//        assert fileName.length()!=0;
-        fileName+=".jpg";
-
-        Path targetPath = basePath.resolve(fileName);
-
-        try (InputStream fileContent = file.getInputStream()) {
-            Files.copy(fileContent, targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-            bulletin.setImageFilePath(targetPath.toString());
-            this.bulletinService.save(bulletin);
-
-            restResponse = RestResponse.builder()
-                    .code(HttpStatus.OK.value())
-                    .httpStatus(HttpStatus.OK)
-                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
-                    .build();
-
-            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            restResponse = RestResponse.builder()
-                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .message(Message.BULLETIN_SAVE_FAILED.label())
-                    .build();
-
-            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping("/bulletin/save/image")
+//    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestBody Bulletin bulletin,
+//                                                              @RequestPart("file") MultipartFile file) throws Exception {
+//
+//        RestResponse<Object> restResponse = new RestResponse<>();
+//
+//        String fileName = file.getName();
+////        assert fileName.length()!=0;
+//        fileName+=".jpg";
+//
+//        Path targetPath = basePath.resolve(fileName);
+//
+//        try (InputStream fileContent = file.getInputStream()) {
+//            Files.copy(fileContent, targetPath, StandardCopyOption.REPLACE_EXISTING);
+//
+//            bulletin.setImageFilePath(targetPath.toString());
+//            this.bulletinService.save(bulletin);
+//
+//            restResponse = RestResponse.builder()
+//                    .code(HttpStatus.OK.value())
+//                    .httpStatus(HttpStatus.OK)
+//                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
+//                    .build();
+//
+//            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
+//        } catch (Exception e) {
+//            restResponse = RestResponse.builder()
+//                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .message(Message.BULLETIN_SAVE_FAILED.label())
+//                    .build();
+//
+//            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 
     @PutMapping("/bulletin/modify/{id}")
