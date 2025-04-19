@@ -24,5 +24,7 @@ public class Bulletin {
         this.imageFilePath = imageFilePath;
     }
 
-    public Bulletin() {}
+    public void setImageFilePath(String imageFilePath) {
+        this.imageFilePath = imageFilePath;
+    }
 }

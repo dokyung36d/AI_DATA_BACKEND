@@ -1,6 +1,7 @@
 package com.example.AI_DATA;
 
 import com.example.AI_DATA.bulletin.Service.BulletinService;
+import com.example.AI_DATA.bulletin.Service.S3Uploader;
 import com.example.AI_DATA.bulletin.model.Bulletin;
 
 import com.example.AI_DATA.restapi.Message;
@@ -34,6 +35,9 @@ public class BulletinApiController {
     public BulletinApiController(BulletinService bulletinService) {
         this.bulletinService = bulletinService;
     }
+
+    @Autowired
+    private S3Uploader s3Uploader;
 
     @GetMapping("/bulletin/view/{id}")
     public ResponseEntity<RestResponse> findBulletin(@PathVariable("id") Long id) {
@@ -100,41 +104,34 @@ public class BulletinApiController {
         return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
     }
 
-//    @PostMapping("/bulletin/save/image")
-//    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestBody Bulletin bulletin,
-//                                                              @RequestPart("file") MultipartFile file) throws Exception {
-//
-//        RestResponse<Object> restResponse = new RestResponse<>();
-//
-//        String fileName = file.getName();
-////        assert fileName.length()!=0;
-//        fileName+=".jpg";
-//
-//        Path targetPath = basePath.resolve(fileName);
-//
-//        try (InputStream fileContent = file.getInputStream()) {
-//            Files.copy(fileContent, targetPath, StandardCopyOption.REPLACE_EXISTING);
-//
-//            bulletin.setImageFilePath(targetPath.toString());
-//            this.bulletinService.save(bulletin);
-//
-//            restResponse = RestResponse.builder()
-//                    .code(HttpStatus.OK.value())
-//                    .httpStatus(HttpStatus.OK)
-//                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
-//                    .build();
-//
-//            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
-//        } catch (Exception e) {
-//            restResponse = RestResponse.builder()
-//                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-//                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .message(Message.BULLETIN_SAVE_FAILED.label())
-//                    .build();
-//
-//            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostMapping("/bulletin/save/image")
+    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestPart("bulletin") Bulletin bulletin,
+                                                              @RequestPart("file") MultipartFile file) throws Exception {
+
+        RestResponse<Object> restResponse = new RestResponse<>();
+
+        try {
+            String imageUrl = s3Uploader.upload(file, "bulletin"); // "bulletin"은 S3 내 폴더
+            bulletin.setImageFilePath(imageUrl); // URL을 경로로 설정
+            bulletinService.save(bulletin);
+
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.OK.value())
+                    .httpStatus(HttpStatus.OK)
+                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
+                    .build();
+
+            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            restResponse = RestResponse.builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(Message.BULLETIN_SAVE_FAILED.label())
+                    .build();
+
+            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     @PutMapping("/bulletin/modify/{id}")
