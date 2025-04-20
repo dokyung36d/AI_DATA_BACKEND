@@ -70,7 +70,7 @@ public class UserApiController {
             return userResponse("Login Failed", HttpStatus.BAD_REQUEST);
         }
 
-        if (sessionConfig.checkSessionAlreadyExist(loginId)) {
+        if (httpSession.getAttribute("loginId") != null) {
             httpSession.setAttribute("loginId", loginId);
             httpSession.setMaxInactiveInterval(60 * 30);
 
@@ -78,6 +78,9 @@ public class UserApiController {
         }
 
         httpSession.setAttribute("loginId", loginId);
+        String loginToken = java.util.UUID.randomUUID().toString();
+        httpSession.setAttribute("loginToken", loginToken);
+
         httpSession.setMaxInactiveInterval(60 * 30);
         return userResponse("Login Success", HttpStatus.OK);
 
