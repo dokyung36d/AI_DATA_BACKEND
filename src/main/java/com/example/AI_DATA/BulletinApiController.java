@@ -1,9 +1,11 @@
 package com.example.AI_DATA;
 
+import com.example.AI_DATA.bulletin.DTO.BulletinWithPresignedUrlDTO;
 import com.example.AI_DATA.bulletin.Service.BulletinService;
+import com.example.AI_DATA.bulletin.Service.S3PresignedUrlService;
 import com.example.AI_DATA.bulletin.Service.S3Uploader;
 import com.example.AI_DATA.bulletin.model.Bulletin;
-
+import com.example.AI_DATA.bulletin.Service.S3PresignedUrlService;
 import com.example.AI_DATA.restapi.Message;
 import com.example.AI_DATA.restapi.RestResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,17 +41,24 @@ public class BulletinApiController {
     @Autowired
     private S3Uploader s3Uploader;
 
+    @Autowired
+    private S3PresignedUrlService s3PresignedUrlService;
+
     @GetMapping("/bulletin/view/{id}")
     public ResponseEntity<RestResponse> findBulletin(@PathVariable("id") Long id) {
         RestResponse<Object> restResponse = new RestResponse<>();
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 
+
         if (!bulletin.isEmpty()) {
+            String key = bulletin.get().getImageFilePath();
+            String presignedUrl = s3PresignedUrlService.generatePresignedUrl(key, 10);
+            BulletinWithPresignedUrlDTO responseData = new BulletinWithPresignedUrlDTO(bulletin.get(), presignedUrl);
             restResponse = RestResponse.builder()
                     .code(HttpStatus.OK.value())
                     .httpStatus(HttpStatus.OK)
                     .message(Message.BULLETIN_FOUND.label())
-                    .data(bulletin.get())
+                    .data(responseData)
                     .build();
         } else {
             restResponse = RestResponse.builder()
@@ -189,6 +198,11 @@ public class BulletinApiController {
         return new ResponseEntity<>(restResponse, HttpStatus.OK);
 
 
+    }
+
+    public String extractKeyFromUrl(String s3Url) {
+        // https://your-bucket.s3.amazonaws.com/images/profile/user123.jpg
+        return s3Url.substring(s3Url.indexOf(".com/") + 5); // "images/profile/user123.jpg"
     }
 
     public static Optional<Bulletin> changeBulletin(Optional<Bulletin> baseBulletin, Bulletin newBulletin) {

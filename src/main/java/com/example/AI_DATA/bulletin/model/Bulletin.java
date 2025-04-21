@@ -27,4 +27,8 @@ public class Bulletin {
     public void setImageFilePath(String imageFilePath) {
         this.imageFilePath = imageFilePath;
     }
+
+    public String getImageFilePath() {
+        return this.imageFilePath;
+    }
 }
