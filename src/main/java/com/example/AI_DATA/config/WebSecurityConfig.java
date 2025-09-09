@@ -1,4 +1,4 @@
-package com.example.AI_DATA.user.config;
+package com.example.AI_DATA.config;
 
 
 import org.springframework.context.annotation.Bean;

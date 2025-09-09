@@ -1,4 +1,4 @@
-package com.example.AI_DATA.user.config;
+package com.example.AI_DATA.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
