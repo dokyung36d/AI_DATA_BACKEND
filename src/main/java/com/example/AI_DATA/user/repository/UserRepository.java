@@ -9,7 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.persistence.Query;
 
 import javax.swing.text.html.Option;
-import java.util.*;
+import java.util.Optional;
+import java.util.List;
 
 @Repository
 public class UserRepository {

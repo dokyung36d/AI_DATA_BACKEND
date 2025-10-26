@@ -35,7 +35,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 

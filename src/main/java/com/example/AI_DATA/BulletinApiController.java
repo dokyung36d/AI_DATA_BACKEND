@@ -27,7 +27,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Collectors;
-import java.util.*;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 public class BulletinApiController {

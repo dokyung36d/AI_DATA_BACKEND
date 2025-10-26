@@ -24,7 +24,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.io.File;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class BulletinService {

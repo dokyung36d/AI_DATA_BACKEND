@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.transaction.Transactional;
 import jakarta.persistence.Query;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.List;
 
 @Repository
 public class BulletinRepository {
