@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.Part;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,7 +77,8 @@ public class BulletinApiController {
         RestResponse<Object> restResponse = new RestResponse<>();
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 
-        Optional<Map<String, String>> aiPrediction = bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
+        CompletableFuture<Optional<Map<String, String>>> aiPredictionFuture = bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
+        Optional<Map<String, String>> aiPrediction = aiPredictionFuture.join();
 
         if (aiPrediction.isEmpty()) {
             restResponse = RestResponse.builder()

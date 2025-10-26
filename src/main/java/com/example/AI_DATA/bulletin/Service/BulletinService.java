@@ -5,7 +5,9 @@ import org.springframework.core.io.FileSystemResource;
 import com.example.AI_DATA.bulletin.repository.BulletinRepository;
 import com.example.AI_DATA.bulletin.model.Bulletin;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +53,8 @@ public class BulletinService {
 
     public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
 
-    public Optional<Map<String, String>> sendRequestToAIServer(String imagePath) {
+    @Async
+    public CompletableFuture<Optional<Map<String, String>>> sendRequestToAIServer(String imagePath) {
         File jpgFile = new File(imagePath);
 
         HttpHeaders headers = new HttpHeaders();
@@ -64,7 +67,7 @@ public class BulletinService {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(aiServerUrl, HttpMethod.POST, requestEntity, String.class);
 
-        if (!response.getStatusCode().is2xxSuccessful()) { return Optional.ofNullable(null); }
+        if (!response.getStatusCode().is2xxSuccessful()) { return CompletableFuture.completedFuture(Optional.empty()); }
 
 //        System.out.println(response.getBody());
 //        Gson gson = new Gson();
@@ -80,11 +83,11 @@ public class BulletinService {
             System.out.println(resultMap);
 
 
-            return Optional.of(resultMap);
+            return CompletableFuture.completedFuture(Optional.of(resultMap));
 
         } catch (Exception e) {
             e.printStackTrace();
-            return Optional.ofNullable(null); }
+            return CompletableFuture.completedFuture(Optional.empty()); }
     }
 
     public Optional<Bulletin> findById(Long id) {
