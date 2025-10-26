@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.FileSystemResource;
 import com.example.AI_DATA.bulletin.repository.BulletinRepository;
 import com.example.AI_DATA.bulletin.model.Bulletin;
+import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ import java.util.*;
 public class BulletinService {
     private final BulletinRepository bulletinRepository;
 
+    @Value("${ai.server.url}")
+    private String aiServerUrl;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -48,7 +52,6 @@ public class BulletinService {
     public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
 
     public Optional<Map<String, String>> sendRequestToAIServer(String imagePath) {
-        String url = "http://ec2-3-34-171-214.ap-northeast-2.compute.amazonaws.com/AICOSS/image/prediction";
         File jpgFile = new File(imagePath);
 
         HttpHeaders headers = new HttpHeaders();
@@ -59,7 +62,7 @@ public class BulletinService {
         body.add("file", fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(aiServerUrl, HttpMethod.POST, requestEntity, String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) { return Optional.ofNullable(null); }
 
