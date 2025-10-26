@@ -77,32 +77,40 @@ public class BulletinApiController {
 
     @GetMapping("bulletin/prediction/{id}")
     public ResponseEntity<RestResponse> getAIPrediction(@PathVariable("id") Long id) {
-        RestResponse<Object> restResponse = new RestResponse<>();
         Optional<Bulletin> bulletin = bulletinService.findById(id);
 
-        CompletableFuture<Optional<Map<String, String>>> aiPredictionFuture = bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
-        Optional<Map<String, String>> aiPrediction = aiPredictionFuture.join();
 
-        if (aiPrediction.isEmpty()) {
-            restResponse = RestResponse.builder()
-                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .message(Message.BULLETIN_AI_PREDICTION_FAILED.label())
-                    .build();
-        }
+        return bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath())
+                .thenApply(aiPrediction -> {
+                    RestResponse<Object> restResponse;
+                    if (aiPrediction.isEmpty()) {
+                        restResponse = RestResponse.builder()
+                                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .message(Message.BULLETIN_AI_PREDICTION_FAILED.label())
+                                .build();
+                    } else {
+                        String aiPredictionStringFormat = getAiPredictionAsStringFormat(aiPrediction.get());
 
-        else {
-            String aiPredictionStringFormat = getAiPredictionAsStringFormat(aiPrediction.get());
+                        restResponse = RestResponse.builder()
+                                .code(HttpStatus.OK.value())
+                                .httpStatus(HttpStatus.OK)
+                                .message(aiPredictionStringFormat)
+                                .data(bulletin.get())
+                                .build();
+                    }
 
-            restResponse = RestResponse.builder()
-                    .code(HttpStatus.OK.value())
-                    .httpStatus(HttpStatus.OK)
-                    .message(aiPredictionStringFormat)
-                    .data(bulletin.get())
-                    .build();
-        }
-
-        return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
+                    return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    RestResponse<Object> errorResponse = RestResponse.builder()
+                            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .message("Unexpected error occurred: " + ex.getMessage())
+                            .build();
+                    return new ResponseEntity<>(errorResponse, errorResponse.getHttpStatus());
+                });
     }
 
     @PostMapping("/bulletin/save")
@@ -119,33 +127,44 @@ public class BulletinApiController {
     }
 
     @PostMapping("/bulletin/save/image")
-    public ResponseEntity<RestResponse> saveBulletinWithImage(@RequestPart("bulletin") Bulletin bulletin,
-                                                              @RequestPart("file") MultipartFile file) throws Exception {
-
-        RestResponse<Object> restResponse = new RestResponse<>();
+    public CompletableFuture<ResponseEntity<RestResponse>> saveBulletinWithImage(
+            @RequestPart("bulletin") Bulletin bulletin,
+            @RequestPart("file") MultipartFile file) {
 
         try {
-            CompletableFuture<String> imageUrlFuture = s3Uploader.upload(file, "bulletin"); // "bulletin"은 S3 내 폴더
-            String imageUrl = imageUrlFuture.join();
+            return s3Uploader.upload(file, "bulletin")
+                    .thenApply(imageUrl -> {
+                        bulletin.setImageFilePath(imageUrl);
+                        bulletinService.save(bulletin);
 
-            bulletin.setImageFilePath(imageUrl); // URL을 경로로 설정
-            bulletinService.save(bulletin);
+                        RestResponse<Object> restResponse = RestResponse.builder()
+                                .code(HttpStatus.OK.value())
+                                .httpStatus(HttpStatus.OK)
+                                .message(Message.BULLETIN_SAVE_SUCCESS.label())
+                                .build();
 
-            restResponse = RestResponse.builder()
-                    .code(HttpStatus.OK.value())
-                    .httpStatus(HttpStatus.OK)
-                    .message(Message.BULLETIN_SAVE_SUCCESS.label())
-                    .build();
+                        return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
+                    })
+                    .exceptionally(ex -> {
+                        ex.printStackTrace();
 
-            return new ResponseEntity<>(restResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            restResponse = RestResponse.builder()
+                        RestResponse<Object> restResponse = RestResponse.builder()
+                                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .message(Message.BULLETIN_SAVE_FAILED.label())
+                                .build();
+
+                        return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+                    });
+        } catch (IOException e) {
+            // 업로드 시작 단계에서 발생한 예외 처리
+            RestResponse<Object> restResponse = RestResponse.builder()
                     .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .message(Message.BULLETIN_SAVE_FAILED.label())
+                    .message("File upload failed: " + e.getMessage())
                     .build();
 
-            return new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            return CompletableFuture.completedFuture(new ResponseEntity<>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR));
         }
     }
 
