@@ -1,9 +1,8 @@
 package com.example.AI_DATA;
 
-import com.example.AI_DATA.user.config.SessionConfig;
+import com.example.AI_DATA.config.SessionConfig;
 import com.example.AI_DATA.user.service.UserService;
 import com.example.AI_DATA.user.model.User;
-import com.example.AI_DATA.user.config.SessionConfig.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
