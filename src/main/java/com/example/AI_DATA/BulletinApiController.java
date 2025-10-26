@@ -35,7 +35,6 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 public class BulletinApiController {
     private final BulletinService bulletinService;
-    Path basePath = Paths.get("C:\\Users\\dokyu\\OneDrive - UOS\\바탕 화면\\AI_DATA\\image");
 
     @Autowired
     public BulletinApiController(BulletinService bulletinService) {
