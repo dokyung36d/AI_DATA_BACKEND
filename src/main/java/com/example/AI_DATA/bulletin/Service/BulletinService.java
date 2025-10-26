@@ -6,7 +6,6 @@ import com.example.AI_DATA.bulletin.repository.BulletinRepository;
 import com.example.AI_DATA.bulletin.model.Bulletin;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;

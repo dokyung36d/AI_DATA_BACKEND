@@ -5,7 +5,6 @@ import com.example.AI_DATA.bulletin.Service.BulletinService;
 import com.example.AI_DATA.bulletin.Service.S3PresignedUrlService;
 import com.example.AI_DATA.bulletin.Service.S3Uploader;
 import com.example.AI_DATA.bulletin.model.Bulletin;
-import com.example.AI_DATA.bulletin.Service.S3PresignedUrlService;
 import com.example.AI_DATA.restapi.Message;
 import com.example.AI_DATA.restapi.RestResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,21 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import java.util.concurrent.CompletableFuture;
 
-import jakarta.servlet.http.Part;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class BulletinApiController {

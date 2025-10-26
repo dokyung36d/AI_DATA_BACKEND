@@ -2,13 +2,10 @@ package com.example.AI_DATA.user.repository;
 
 import com.example.AI_DATA.user.model.User;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.persistence.Query;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.List;
 
