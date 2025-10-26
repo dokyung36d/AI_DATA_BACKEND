@@ -23,6 +23,10 @@ public class S3Uploader {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    public S3Uploader(AmazonS3 amazonS3) {
+        this.amazonS3 = amazonS3;
+    }
+
     @Async
     public CompletableFuture<String> upload(MultipartFile file, String dirName) throws IOException {
         String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
