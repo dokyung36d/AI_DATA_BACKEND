@@ -1,7 +1,7 @@
 package com.example.AI_DATA;
 
 import com.example.AI_DATA.dto.user.PasswordChangeDTO;
-import com.example.AI_DATA.user.config.SessionConfig;
+import com.example.AI_DATA.config.SessionConfig;
 import com.example.AI_DATA.user.model.User;
 import com.example.AI_DATA.user.service.UserService;
 
