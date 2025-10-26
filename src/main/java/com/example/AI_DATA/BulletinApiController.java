@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class BulletinApiController {
@@ -124,7 +125,9 @@ public class BulletinApiController {
         RestResponse<Object> restResponse = new RestResponse<>();
 
         try {
-            String imageUrl = s3Uploader.upload(file, "bulletin"); // "bulletin"은 S3 내 폴더
+            CompletableFuture<String> imageUrlFuture = s3Uploader.upload(file, "bulletin"); // "bulletin"은 S3 내 폴더
+            String imageUrl = imageUrlFuture.join();
+
             bulletin.setImageFilePath(imageUrl); // URL을 경로로 설정
             bulletinService.save(bulletin);
 
