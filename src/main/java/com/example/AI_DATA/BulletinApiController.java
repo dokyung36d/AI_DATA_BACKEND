@@ -67,9 +67,16 @@ public class BulletinApiController {
     }
 
     @GetMapping("bulletin/prediction/{id}")
-    public ResponseEntity<RestResponse> getAIPrediction(@PathVariable("id") Long id) {
+    public CompletableFuture<ResponseEntity<RestResponse>> getAIPrediction(@PathVariable("id") Long id) {
         Optional<Bulletin> bulletin = bulletinService.findById(id);
-
+        if (!bulletin.isPresent()) {
+            RestResponse<Object> errorResponse = RestResponse.builder()
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .message("Bulletin not found.")
+                    .build();
+            return CompletableFuture.completedFuture(new ResponseEntity<>(errorResponse, errorResponse.getHttpStatus()));
+        }
 
         return bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath())
                 .thenApply(aiPrediction -> {
