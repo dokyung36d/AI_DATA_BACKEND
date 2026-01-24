@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import java.util.concurrent.CompletableFuture;
+import com.example.AI_DATA.bulletin.Service.RedisService;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,9 @@ public class BulletinApiController {
 
     @Autowired
     private S3PresignedUrlService s3PresignedUrlService;
+
+    @Autowired
+    private RedisService redisService;
 
     @GetMapping("/bulletin/view/{id}")
     public ResponseEntity<RestResponse> findBulletin(@PathVariable("id") Long id) {
@@ -69,48 +73,17 @@ public class BulletinApiController {
     }
 
     @GetMapping("bulletin/prediction/{id}")
-    public CompletableFuture<ResponseEntity<RestResponse>> getAIPrediction(@PathVariable("id") Long id) {
-        Optional<Bulletin> bulletin = bulletinService.findById(id);
-        if (!bulletin.isPresent()) {
-            RestResponse<Object> errorResponse = RestResponse.builder()
-                    .code(HttpStatus.NOT_FOUND.value())
-                    .httpStatus(HttpStatus.NOT_FOUND)
-                    .message("Bulletin not found.")
-                    .build();
-            return CompletableFuture.completedFuture(new ResponseEntity<>(errorResponse, errorResponse.getHttpStatus()));
+    public ResponseEntity<Object> getPrediction(@PathVariable("id") int id) {
+        String redisKey = "prediction:" + id;
+
+
+        Object data = redisService.getValue(redisKey);
+
+        if (data == null) {
+            return ResponseEntity.notFound().build();
         }
 
-        return bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath())
-                .thenApply(aiPrediction -> {
-                    RestResponse<Object> restResponse;
-                    if (aiPrediction.isEmpty()) {
-                        restResponse = RestResponse.builder()
-                                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .message(Message.BULLETIN_AI_PREDICTION_FAILED.label())
-                                .build();
-                    } else {
-                        String aiPredictionStringFormat = getAiPredictionAsStringFormat(aiPrediction.get());
-
-                        restResponse = RestResponse.builder()
-                                .code(HttpStatus.OK.value())
-                                .httpStatus(HttpStatus.OK)
-                                .message(aiPredictionStringFormat)
-                                .data(bulletin.get())
-                                .build();
-                    }
-
-                    return new ResponseEntity<>(restResponse, restResponse.getHttpStatus());
-                })
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    RestResponse<Object> errorResponse = RestResponse.builder()
-                            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .message("Unexpected error occurred: " + ex.getMessage())
-                            .build();
-                    return new ResponseEntity<>(errorResponse, errorResponse.getHttpStatus());
-                });
+        return ResponseEntity.ok(data);
     }
 
     @PostMapping("/bulletin/save")
