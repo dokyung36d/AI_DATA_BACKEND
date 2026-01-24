@@ -55,6 +55,8 @@ public class BulletinApiController {
                     .message(Message.BULLETIN_FOUND.label())
                     .data(responseData)
                     .build();
+
+            bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
         } else {
             restResponse = RestResponse.builder()
                     .code(HttpStatus.NOT_FOUND.value())
