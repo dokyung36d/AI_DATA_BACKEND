@@ -7,9 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Entity
 @Table(name = "bulletin")
 public class Bulletin {
@@ -18,6 +18,7 @@ public class Bulletin {
     @Column(name=  "id")
     private Long id;
 
+    @Column(nullable = false)
     private String title;
     private String label;
     private String imageFilePath;
