@@ -13,9 +13,8 @@ import java.util.Map;
 
 
 @Configuration
-@WebListener
 @EnableRedisHttpSession
-public class SessionConfig implements HttpSessionListener {
+public class SessionConfig {
     @Bean
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return new GenericJackson2JsonRedisSerializer();
