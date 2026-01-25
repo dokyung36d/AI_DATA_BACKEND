@@ -60,7 +60,7 @@ public class BulletinApiController {
                     .data(responseData)
                     .build();
 
-            bulletinService.sendRequestToAIServer(bulletin.get().getImageFilePath());
+            bulletinService.sendRequestToAIServer(id, bulletin.get().getImageFilePath());
         } else {
             restResponse = RestResponse.builder()
                     .code(HttpStatus.NOT_FOUND.value())

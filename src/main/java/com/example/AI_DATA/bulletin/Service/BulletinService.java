@@ -50,7 +50,7 @@ public class BulletinService {
     public long getLatestBulletinId() { return this.bulletinRepository.getLatestBulletinId(); }
 
     @Async
-    public CompletableFuture<Optional<Map<String, String>>> sendRequestToAIServer(String imagePath) {
+    public CompletableFuture<Optional<Map<String, String>>> sendRequestToAIServer(long id, String imagePath) {
         File jpgFile = new File(imagePath);
 
         HttpHeaders headers = new HttpHeaders();
@@ -58,6 +58,7 @@ public class BulletinService {
 
         FileSystemResource fileSystemResource = new FileSystemResource(jpgFile);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("id", id);
         body.add("file", fileSystemResource);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
